@@ -18,23 +18,6 @@ The codebase is structured as a numbered sequence of runnable scripts (01 → 15
 - Automated BEV ground-truth mask generation from KITTI object labels
 - Training and evaluation of Small U-Net and ResNet segmentation models on BEV inputs
 
----
-
-<div align="center">
-
-<img src="https://github.com/user-attachments/assets/a8f7bca0-23b8-44e2-b2f8-df75bd07366d" width="480" alt="Camera LiDAR Projection"/>
-
-<sub><b>Figure 1.</b> LiDAR points projected onto the camera image (cam2 RGB)</sub>
-
-<br/><br/>
-
-<img src="https://github.com/user-attachments/assets/b7a31a2e-2ac5-478a-9c88-19fccc88f83f" width="900" alt="BEV and Camera Visualization"/>
-
-<sub><b>Figure 2.</b> Combined camera view and Bird's Eye View (BEV) representation</sub>
-
-</div>
-
----
 
 In this project, I used the KITTI raw data to build a step-by-step geometric perception pipeline. I inspected the dataset structure and calibration files, worked with the intrinsic and extrinsic matrices, transformed LiDAR points from the Velodyne frame into the camera frame, and projected them onto the cam2 RGB image. After validating the projection, I generated sparse depth maps and camera-LiDAR depth overlays. I also converted the LiDAR point cloud into Bird's Eye View (BEV) maps, including occupancy, density, height, and intensity representations. BEV is useful because it converts the 3D scene into a top-down metric grid, making distances, road layout, point density, and object positions easier to reason about. I also tested ground plane estimation using RANSAC to separate road-like ground points from above-ground and below-ground residual points. The goal of this project is not to train a black-box model, but to understand the core geometry behind camera-LiDAR sensor fusion and build a clean perception front-end from raw autonomous driving sensor data.
 
