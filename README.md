@@ -3,11 +3,11 @@
 An end-to-end LiDAR-camera fusion and Bird's Eye-View (BEV) vehicle segmentation pipeline built on the KITTI autonomous driving dataset.
 
 ## Project Summary
- 
+
 This project explores the full perception stack of a self-driving vehicle using the KITTI Raw and Object Detection datasets. Starting from raw sensor data — a 64-beam Velodyne LiDAR and a stereo camera pair — the pipeline progresses through calibration, sensor fusion, classical road detection, 3-D object annotation, and finally trains a deep learning model to segment vehicles in BEV space.
- 
+
 The codebase is structured as a numbered sequence of runnable scripts (01 → 15), each building on the previous stage. Every script delegates to a matching class in `scripts/classes/`, keeping the scripts themselves concise entry points and the logic reusable.
- 
+
 **Key capabilities:**
 - LiDAR-to-camera projection using calibrated intrinsic and extrinsic matrices
 - Sparse and dense depth-map generation with video export
@@ -17,26 +17,29 @@ The codebase is structured as a numbered sequence of runnable scripts (01 → 15
 - 3-D bounding-box visualisation on both the camera image and BEV plane
 - Automated BEV ground-truth mask generation from KITTI object labels
 - Training and evaluation of Small U-Net and ResNet segmentation models on BEV inputs
+
 ---
 
-
-
 <div align="center">
+
 <img src="https://github.com/user-attachments/assets/a8f7bca0-23b8-44e2-b2f8-df75bd07366d" width="480" alt="Camera LiDAR Projection"/>
+
 <sub><b>Figure 1.</b> LiDAR points projected onto the camera image (cam2 RGB)</sub>
- 
+
 <br/><br/>
- 
+
 <img src="https://github.com/user-attachments/assets/b7a31a2e-2ac5-478a-9c88-19fccc88f83f" width="900" alt="BEV and Camera Visualization"/>
+
 <sub><b>Figure 2.</b> Combined camera view and Bird's Eye View (BEV) representation</sub>
- 
+
 </div>
 
+---
 
-In this project, I used the KITTI raw data to build a step-by-step geometric perception pipeline. I inspected the dataset structure and calibration files, worked with the intrinsic and extrinsic matrices, transformed LiDAR points from the Velodyne frame into the camera frame, and projected them onto the cam2 RGB image. After validating the projection, I generated sparse depth maps and camera-LiDAR depth overlays. I also converted the LiDAR point cloud into Bird’s Eye View (BEV) maps, including occupancy, density, height, and intensity representations. BEV is useful because it converts the 3D scene into a top-down metric grid, making distances, road layout, point density, and object positions easier to reason about. I also tested ground plane estimation using RANSAC to separate road-like ground points from above-ground and below-ground residual points. The goal of this project is not to train a black-box model, but to understand the core geometry behind camera-LiDAR sensor fusion and build a clean perception front-end from raw autonomous driving sensor data.
+In this project, I used the KITTI raw data to build a step-by-step geometric perception pipeline. I inspected the dataset structure and calibration files, worked with the intrinsic and extrinsic matrices, transformed LiDAR points from the Velodyne frame into the camera frame, and projected them onto the cam2 RGB image. After validating the projection, I generated sparse depth maps and camera-LiDAR depth overlays. I also converted the LiDAR point cloud into Bird's Eye View (BEV) maps, including occupancy, density, height, and intensity representations. BEV is useful because it converts the 3D scene into a top-down metric grid, making distances, road layout, point density, and object positions easier to reason about. I also tested ground plane estimation using RANSAC to separate road-like ground points from above-ground and below-ground residual points. The goal of this project is not to train a black-box model, but to understand the core geometry behind camera-LiDAR sensor fusion and build a clean perception front-end from raw autonomous driving sensor data.
 
 ## Repository Structure
- 
+
 ```
 kitti_perception_pipeline/
 ├── config/
@@ -105,36 +108,36 @@ kitti_perception_pipeline/
 ├── requirements.txt
 └── .gitignore
 ```
- 
+
 ---
 
 ## Setup
- 
+
 **1. Clone and install dependencies**
- 
+
 ```bash
 git clone https://github.com/your-username/kitti_perception_pipeline.git
 cd kitti_perception_pipeline
 pip install -r requirements.txt
 ```
- 
+
 Recommended Python: **3.11**
- 
+
 **2. Download the KITTI datasets**
- 
+
 | Dataset | Link |
 |---|---|
 | KITTI Raw Data | https://www.cvlibs.net/datasets/kitti/raw_data.php |
 | KITTI Object Detection | https://www.cvlibs.net/datasets/kitti/eval_object.php |
- 
+
 **3. Configure paths**
- 
+
 Copy the example env file and fill in your local paths:
- 
+
 ```bash
 cp config/.env.example config/.env
 ```
- 
+
 ```env
 KITTI_RAW_DIR=/path/to/kitti_raw
 KITTI_OBJ_DIR=/path/to/kitti_object
@@ -142,32 +145,32 @@ KITTI_DATE=2011_09_26
 KITTI_DRIVE=0019
 OUTPUT_DIR=outputs
 ```
- 
+
 Verify with:
- 
+
 ```bash
 python config/config.py
 ```
- 
+
 ---
- 
+
 ## Usage
- 
+
 Scripts are self-contained and run in order from `scripts/`:
- 
+
 ```bash
 cd scripts
 python 01_inspect_dataset.py
 python 09_2_bev_occupancy_map.py
 python 15_3_train_bev_vehicle_segmentation.py
 ```
- 
+
 All outputs (images, videos, model checkpoints) are saved to `outputs/`.
- 
+
 ---
- 
+
 ## Pipeline Stages
- 
+
 | Stage | Scripts | Description |
 |---|---|---|
 | Data Inspection | 01–02 | Dataset stats, calibration matrix verification |
@@ -178,35 +181,34 @@ All outputs (images, videos, model checkpoints) are saved to `outputs/`.
 | Road & Lane | 12 | LiDAR clustering + SegFormer camera fusion |
 | Object Dataset | 13–14 | 3-D box visualisation, GT mask generation |
 | Deep Learning | 15 | BEV vehicle segmentation training & eval |
- 
+
 ---
 
- ## Models
- 
+## Models
+
 Two architectures are supported for BEV vehicle segmentation:
- 
+
 | Model | Input size | Script |
 |---|---|---|
 | Small U-Net | 448 × 320 | `15_3`, `15_5` |
 | Small ResNet | 352 × 256 | `15_6` |
- 
+
 Training hyperparameters (epochs, batch size, learning rate, positive class weight) are configurable at the top of each training script.
- 
+
 ---
- 
+
 ## Running the Tests
- 
+
 Unit tests cover the pure-math functions (projection, BEV coordinate conversion, 3-D box geometry) and require no KITTI data files.
- 
+
 ```bash
 pip install pytest
 pytest tests/ -v
 ```
- 
----
- 
-## License
- 
-This project is for research and educational purposes only.  
-The KITTI dataset is subject to its own [license terms](https://www.cvlibs.net/datasets/kitti/).
 
+---
+
+## License
+
+This project is for research and educational purposes only.
+The KITTI dataset is subject to its own [license terms](https://www.cvlibs.net/datasets/kitti/).
